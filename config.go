@@ -28,6 +28,7 @@ type Config struct {
 
 type NetworkConfig struct {
 	Servers        []string `json:servers`
+	Topic          string   `json:"topic"`
 	SSLCertificate string   `json:"ssl certificate"`
 	SSLKey         string   `json:"ssl key"`
 	SSLCA          string   `json:"ssl ca"`
@@ -94,6 +95,12 @@ func MergeConfig(to *Config, from Config) (err error) {
 		}
 		to.Network.Timeout = from.Network.Timeout
 	}
+	if from.Network.Topic != "" {
+		if to.Network.Topic != "" {
+			return fmt.Errorf("topic already defined as '%s' in previous config file", to.Network.Topic)
+		}
+		to.Network.Topic = from.Network.Topic
+	}
 	return nil
 }
 
@@ -125,14 +132,12 @@ func LoadConfig(path string) (config Config, err error) {
 		return
 	}
 
-	buffer = []byte(os.ExpandEnv(string(buffer)))
-
 	err = json.Unmarshal(buffer, &config)
 	if err != nil {
 		emit("Failed unmarshalling json: %s\n", err)
 		return
 	}
-
+	println("config.Network.Topic:" + config.Network.Topic)
 	for k, _ := range config.Files {
 		if config.Files[k].DeadTime == "" {
 			config.Files[k].DeadTime = defaultConfig.fileDeadtime
