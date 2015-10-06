@@ -1,3 +1,8 @@
+# kafka-logstash-forwarder
+Logstash proper supports the ability to forward data to Kafka directly from the server that is producing the logs. While this is straightforward the average memory consumption under load ranges from 200-300MB and can easily consume an entire core. On extremely large clusters of commodity hardware this can consume quite a bit of compute capacity solely for the use of log aggregation. Because of this, logstash-forwarder (project from which this is forked) was developed to minimize the memory and CPU usage for log aggregation by implementing the log acquisition process in Go instead of Java. In order to get the logs from the source server via logstash-forwarder to Kafka the data must be sent through log-stash servers via the lumberjack protocol, which in turn send the data to Kafka. This again implies that some number of servers must be devoted to log aggregation, in addition to the fact that redundancy and failover of a whole separate tier must be accounted for.  
+
+This project is intended to stream line and optimize log acquisition for use in very large scale implementations leveraging commodity hardware in which Kafka already plays a major role. The kafka logstash-forwarder leverages the logstash-forwarder code base but instead of sending the data via the lumberjack protocol to another logstash, it will instead send it directly to Kafka. Load testing of this implementation (written in Go) has reduced the memory footprint from 200-300MB/1 Core to 9MB/.3 Cores and does not require any logstash aggregation servers. 
+
 # logstash-forwarder
 
 ♫ I'm a lumberjack and I'm ok! I sleep when idle, then I ship logs all day! I parse your logs, I eat the JVM agent for lunch! ♫
